@@ -1,0 +1,80 @@
+<script src=raph.js></script>
+<div id=grp></div>
+<script>
+	var screen = new Object();
+	
+	screen.w = 500;
+	screen.h = 500;
+	screen.type = "centred"
+	
+	
+	screen.paper = Raphael(10, 10, screen.w, screen.h);
+	var paper = screen.paper;
+
+	screen.background = null;
+	screen.backgroundRect = paper.rect(0,0,screen.w,screen.h)
+	screen.backgroundRect.attr({"stroke":"none"})
+	
+	screen.setBackground = function(color){
+		screen.background = color;
+		screen.backgroundRect.attr({"fill":color})
+	}
+	
+	screen.setBackground("#eee");
+	
+	dot = function(x,y, color){
+		if(screen.type=="centred")
+			var tmp = paper.rect(x+screen.h/2,y+screen.w/2,1,1,0);
+		if(screen.type=="normal")
+			var tmp = paper.rect(x,y,1,1,0);	
+		if(typeof color == "string")
+			tmp.attr({"stroke":color})
+		else
+			tmp.attr({"stroke":"#f00"})
+		return tmp;
+	}
+	
+	rad = function(grad){
+		return (grad/360*2*Math.PI)
+	}
+	
+	function hexcolor(r, g, b) {
+		return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+	}
+	
+	func = function(param, t){
+		if(typeof t != "number")
+			t = 0;
+		else
+			t += param.v/1000;
+		if((typeof param.x == "function")||(typeof param.x=="number")) var x = param.x(t);
+		if((typeof param.y == "function")||(typeof param.y=="number")) var y = param.y(t);
+		if(typeof param.color == "function")
+			dot(x,y,param.color());
+		else
+			if(typeof param.color == "number")
+				dot(x,y,param.color);
+			else dot(x,y);
+		if(typeof param.iteration == "function") param.iteration(t);
+		if(t<param.to) setTimeout(func, (param.v), param, t);
+	}
+	
+	func({
+		"x":function(t){
+			return Math.cos(rad(t/10*360))*100;
+		},
+		"y":function(t){
+			return Math.sin(rad(t/10*360))*100;
+		},
+		"iteration":function(t){
+		},
+		"color":function(t){
+			return hexcolor(Math.floor(t/10*255),
+							Math.floor(t/10*255),
+							Math.floor(t/10*255))
+		},
+		"to": 3*Math.PI*(360),
+		"v": 10
+	})
+	
+</script>
